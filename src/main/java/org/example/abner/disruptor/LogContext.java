@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class LogContext {
 
     private static List<ArrayBlockingQueue<String>> list;
-    private static final int SIZE = 8;
+    private static final int SIZE = Runtime.getRuntime().availableProcessors();
     public static final String namePrefix = "KEFU_LOG_CONSUMER_";
     private static Map<String, ArrayBlockingQueue<String>> queueMap;
     private static long num = 0L;

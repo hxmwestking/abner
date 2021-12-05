@@ -51,7 +51,8 @@ public class TestDisruptor {
     public void testDisruptor() {
         List<LogEventThread> consumers = new ArrayList<>(8);
         List<Thread> producers = new ArrayList<>(8);
-        for (int i = 0; i < 8; i++) {
+        int size = Runtime.getRuntime().availableProcessors();
+        for (int i = 0; i < size; i++) {
             LogEventThread thread = new LogEventThread(logService, LogContext.namePrefix + i);
             consumers.add(thread);
             thread.start();
