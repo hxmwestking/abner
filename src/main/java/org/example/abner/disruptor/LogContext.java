@@ -11,17 +11,24 @@ public class LogContext {
 
     private static List<ArrayBlockingQueue<String>> list;
     private static final int SIZE = Runtime.getRuntime().availableProcessors();
-    public static final String namePrefix = "KEFU_LOG_CONSUMER_";
+    public static final String NAME_PREFIX = "KEFU_LOG_CONSUMER_";
     private static Map<String, ArrayBlockingQueue<String>> queueMap;
     private static long num = 0L;
+    private static List<LogEventThread> consumers;
 
-    public static void init() {
+    public static void init(LogService logService) {
         list = new ArrayList<>(SIZE);
         queueMap = new HashMap<>(SIZE);
         for (int i = 0; i < SIZE; i++) {
             ArrayBlockingQueue<String> queue = new ArrayBlockingQueue<>(256);
             list.add(queue);
-            queueMap.put(namePrefix + i, queue);
+            queueMap.put(NAME_PREFIX + i, queue);
+        }
+        consumers = new ArrayList<>(SIZE);
+        for (int i = 0; i < SIZE; i++) {
+            LogEventThread thread = new LogEventThread(logService, LogContext.NAME_PREFIX + i);
+            consumers.add(thread);
+            thread.start();
         }
     }
 
@@ -30,6 +37,7 @@ public class LogContext {
     }
 
     public static void shutdown(LogService logService) {
+        consumers.forEach(LogEventThread::shutdown);
         for (ArrayBlockingQueue<String> queue : list) {
             logService.send(new ArrayList<>(queue));
             queue.clear();

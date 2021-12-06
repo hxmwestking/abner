@@ -24,7 +24,7 @@ public class TestDisruptor {
     public void before() {
         logService = new LogService();
 
-        LogContext.init();
+        LogContext.init(logService);
 
         LogEventFactory eventFactory = new LogEventFactory();
         ThreadFactory factory = new LogEventThreadFactory();
@@ -49,14 +49,8 @@ public class TestDisruptor {
 
     @Test
     public void testDisruptor() {
-        List<LogEventThread> consumers = new ArrayList<>(8);
         List<Thread> producers = new ArrayList<>(8);
-        int size = Runtime.getRuntime().availableProcessors();
-        for (int i = 0; i < size; i++) {
-            LogEventThread thread = new LogEventThread(logService, LogContext.namePrefix + i);
-            consumers.add(thread);
-            thread.start();
-        }
+
         LogEventTranslator translator = new LogEventTranslator();
         for (int i = 0; i < 4; i++) {
             int val = i;
@@ -83,7 +77,6 @@ public class TestDisruptor {
                 e.printStackTrace();
             }
         });
-        consumers.forEach(LogEventThread::shutdown);
         System.out.println("cost:" + (System.currentTimeMillis() - start));
     }
 
@@ -113,9 +106,5 @@ public class TestDisruptor {
         LogEventTranslator translator = new LogEventTranslator();
         RingBuffer<LogEvent> ringBuffer = disruptor.getRingBuffer();
         ringBuffer.publishEvent(translator, "msg");
-
-
-        // https://blog.csdn.net/t_332741160/article/details/48346265
-        // https://tech.meituan.com/2016/11/18/disruptor.html
     }
 }

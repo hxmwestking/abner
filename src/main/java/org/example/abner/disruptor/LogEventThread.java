@@ -7,20 +7,21 @@ import java.util.concurrent.TimeUnit;
 
 public class LogEventThread extends Thread {
 
-    private ArrayBlockingQueue<String> queue;
+    private final ArrayBlockingQueue<String> queue;
     private final List<String> list = new ArrayList<>(256);
     private final LogService logService;
+    private final String name;
 
     public LogEventThread(LogService logService, String name) {
         super(name);
+        this.name = name;
         this.logService = logService;
+        this.queue = LogContext.getQueue(name);
     }
 
     @Override
     public void run() {
         while (true) {
-            String name = Thread.currentThread().getName();
-            queue = LogContext.getQueue(name);
             try {
                 String msg = queue.poll(1L, TimeUnit.SECONDS);
                 System.out.println("thread: " + name + " consumer: " + msg);
