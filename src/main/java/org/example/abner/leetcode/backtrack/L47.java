@@ -1,4 +1,4 @@
-package org.example.abner.leetcode.recursion;
+package org.example.abner.leetcode.backtrack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
